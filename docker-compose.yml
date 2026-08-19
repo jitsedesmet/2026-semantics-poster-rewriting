@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/jitsedesmet/2026-eswc-demo-traqula:latest
+    image: ghcr.io/jitsedesmet/2026-semantics-poster-rewriting:latest
     build:
       dockerfile: Dockerfile
     ports:
