@@ -1,0 +1,403 @@
+@use "fonts";
+
+body {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  margin: calc(1189px / -2) 0 0 calc(841px / -2);
+  width: 841px;
+  height: 1189px;
+  background-color: gray;
+
+  --font-family: Inter, Inter Tight, sans-serif;
+  --rq-color: #d9d2e9;
+  --color-key: #486081;
+  --slide-background: #f6fdf5;
+  --color-prim: #005eae;
+  --color-prim-light: #d4e5f5;
+  --color-sec: #fbba64;
+  --color-ter: white;
+  --size-huge: 1.8rem;
+  --size-big: 1.7rem;
+  --size-small: 1rem;
+  --size-extra-small: 0.8rem;
+  --size-norm: 1.5rem;
+
+  --deep-red: hsl(0, 100%, 50%);
+  --red: hsl(0, 100%, 65%);
+  --light-red: hsl(0, 100%, 95%);
+  --deep-green: hsl(140, 100%, 30%);
+  --light-green: hsl(160, 100%, 95%);
+}
+
+#app {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  aspect-ratio: 841 / 1189;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  display: grid;
+  grid-template-rows: repeat(32, minmax(0, 1fr));
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  font-family: var(--font-family), sans-serif;
+  font-size: var(--size-norm);
+  color: var(--color-prim);
+
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  text-rendering: geometricprecision;
+
+  padding: 0.2cm;
+}
+
+ul {
+  padding: 0;
+}
+
+li::before, .icon {
+  font-family: "Noto Emoji", "Inter Tight", "Inter", sans-serif;
+  //font-optical-sizing: auto;
+  //font-weight: normal;
+  //font-style: normal;
+}
+.cicon {
+  font-family: "Noto Color Emoji", "Inter Tight", "Inter", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.mono {
+  font-family: "monospace", sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+pre, code {
+  font-family: "Ubuntu Mono", sans-serif;
+}
+
+// =====================================================================================================================
+// ======================================= POSTER COMPONENTS ===========================================================
+// =====================================================================================================================
+
+header {
+  grid-column: 1 / -1;
+  grid-row: 1 / span 4;
+  font-weight: bold;
+  background: var(--color-prim);
+  font-size: var(--size-huge);
+  text-align: center;
+  padding: 0.5em;
+  color: var(--color-ter);
+}
+
+#requirements {
+  .title {
+    font-weight: bold;
+    margin: 0;
+  }
+  grid-column: 1 / span 12;
+  grid-row: 5 / span 8;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  ul {
+    margin: 0;
+    list-style: none;
+  }
+  li {
+    margin: 0 0 0.3em 0;
+    display: flex;
+    align-items: baseline;
+  }
+  li::before {
+    content: "📝";
+    font-size: 0.8em;
+    margin: 0 0.5em 0 1rem;
+  }
+}
+
+#system-img {
+  grid-column: 13 / -1;
+  grid-row: 5 / span 8;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+#take-home {
+  grid-column: 1 / -1;
+  grid-row: 13 / span 2;
+  text-align: center;
+  font-size: var(--size-big);
+  background: var(--color-prim-light);
+  font-weight: bold;
+  border-radius: 0.25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#rdf-representation {
+  margin-top: 0.5rem;
+  grid-column: 1 / 15;
+  grid-row: 15 / span 7;
+  color: black;
+  font-size: var(--size-extra-small);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+
+  #rdf-code {
+    grid-column: 1 / -1;
+    font-size: var(--size-small);
+    margin: 0 0 0 1rem;
+  }
+
+  #rdf-explain-1, #rdf-explain-2 {
+    border: 0.15rem solid;
+    border-radius: 1rem;
+    padding: 0.2rem;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #rdf-explain-1 {
+    border-color: var(--deep-green);
+    background-color: var(--light-green);
+    .title {
+      color: var(--deep-green);
+      font-weight: bold;
+    }
+  }
+  #rdf-explain-2 {
+    border-color: var(--deep-red);
+    background-color: var(--light-red);
+    .title {
+      color: var(--deep-red);
+      font-weight: bold;
+    };
+  }
+}
+
+#notation {
+  margin-top: 0.5rem;
+  grid-column: 15 / -1;
+  grid-row: 15 / span 8;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .title {
+    font-weight: bold;
+    margin: 0;
+  }
+  ul {
+    margin: 0;
+    list-style: none;
+  }
+  li::before {
+    content: '+';
+    font-weight: bold;
+    color: var(--deep-green);
+    margin: 0 0.5em 0 0;
+  }
+  li:has(> ul) {
+    flex-wrap: wrap;
+  }
+  li {
+    margin: 0 0 0.3em 0;
+    display: flex;
+    align-items: baseline;
+    // Subitems:
+    ul li {
+      margin-bottom: 0;
+      margin-left: 0.7em
+    }
+    ul li::before {
+      content: '↳';
+    }
+  }
+}
+
+#architecture {
+  grid-column: 1 / span 8;
+  grid-row: 24 / span 5;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .title {
+    font-weight: bold;
+    margin: 0 0 0.5em 0;
+  }
+  ul {
+    margin: 0;
+    list-style: none;
+  }
+  li {
+    margin: 0 0 0.5em 0;
+    display: flex;
+    align-items: baseline;
+  }
+  li::before {
+    content: '+';
+    font-weight: bold;
+    color: var(--deep-green);
+    margin: 0 0.5em 0 0.2rem;
+  }
+}
+
+#stack-img {
+  grid-column: 9 / span 8;
+  grid-row: 22 / -3;
+  object-fit: contain;
+  width: 100%;
+  margin: 1.5rem 0 0.1rem 0;
+  height: calc(100% - 1.6rem);
+}
+
+#conclusion {
+  grid-column: 16 / -1;
+  grid-row: 23 / -3;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  text-align: right;
+
+  .title {
+    font-weight: bold;
+    margin: 0.5em;
+  }
+  ul {
+    margin: 0;
+  }
+  li, #conclusion li::marker {
+    margin: 0.2em 1rem;
+  }
+  li {
+    margin-bottom: 0.5em;
+  }
+  #comunica {
+    height: 0.8em;
+  }
+}
+
+footer {
+  grid-column: 1 / -1;
+  grid-row: -3 / -1;
+  font-size: var(--size-small);
+  background: var(--color-prim);
+  color: var(--color-ter);
+  padding: 0 1em;
+  display: flex;
+  align-items: center;
+  #paper-ref {
+    margin: 0 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 80%;
+
+    #qr-paper {
+      height: 100%;
+      width: auto;
+      margin: 0 0 0 0.5em;
+      padding: 0;
+    }
+  }
+  a {
+    color: var(--color-ter);
+    text-decoration: none;
+    border: none;
+  }
+  .logo {
+    margin: 0 1em 0 1em;
+  }
+  #fwo {
+    margin: 0 0 0 auto;
+    height: 30%;
+  }
+  #ughent {
+    margin-right: 0;
+    height: 75%;
+  }
+  #imec {
+    margin: 0;
+    height: 50%;
+  }
+  #fwo, #ughent, #imec {
+    img {
+      height: 100%;
+      width: auto;
+    }
+  }
+}
+
+// =====================================================================================================================
+// ======================================= END POSTER COMPONENTS =======================================================
+// =====================================================================================================================
+
+@media print {
+  body {
+    background: white;
+    transform: none !important;
+  }
+
+  #poster-wrapper {
+    transform: none !important;
+  }
+
+  #app {
+    box-shadow: none;
+  }
+}
+
+@page {
+  size: 841px 1189px; /* A0 dimensions in millimeters */
+  margin: 0;
+}
+
+
+#pdf-download {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  background: #45678e;
+  border-radius: 50%;
+  width: 3em;
+  height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: none;
+
+  &:hover {
+    background: #0b99bc;
+  }
+
+  svg {
+    width: 1.5em;
+    height: 1.5em;
+    fill: white;
+  }
+}
