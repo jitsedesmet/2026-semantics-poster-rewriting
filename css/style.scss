@@ -173,6 +173,11 @@ header {
     font-size: var(--size-norm);
     font-weight: 500;
 
+    // Bold marks the presenting author.
+    .presenter {
+      font-weight: 800;
+    }
+
     sup {
       font-size: 0.6em;
       color: var(--color-sec);
