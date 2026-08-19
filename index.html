@@ -5,137 +5,180 @@
     <link rel="icon" type="image/svg+xml" href="/img/logos/favicon.png"/>
     <link rel="icon" type="image/svg+xml" href="/img/logos/favicon.svg"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>A State-Based Add-Wins CRDT for RDF 1.2 Datastores</title>
+    <title>RDF & SPARQL 1.2 Interoperability through Query Rewriting</title>
 </head>
 <body prefix="rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns# foaf: http://xmlns.com/foaf/0.1/ owl: http://www.w3.org/2002/07/owl# xsd: http://www.w3.org/2001/XMLSchema# org: http://www.w3.org/ns/org# schema: http://schema.org/ cite: http://purl.org/spar/cito/"
       typeof="schema:Poster">
 <div id="poster-wrapper">
     <div id="app">
-        <header class="mtitle" property="schema:name" style="font-size: 1.7em;">
-            A State-Based <span style="color: var(--color-sec)">Add-Wins CRDT</span><br>
-            for <span
-                style="color: var(--color-sec)">RDF 1.2</span> Datastores
+
+        <header>
+            <div class="mtitle" property="schema:name">
+                RDF &amp; SPARQL <span class="accent">1.2</span> Interoperability<br>
+                through <span class="accent">Query Rewriting</span>
+            </div>
+            <div class="authors">
+                <span property="schema:author" typeof="schema:Person">
+                    <span property="schema:name">Jitse De Smet</span><sup>1</sup></span>
+                &nbsp;·&nbsp;
+                <span property="schema:author" typeof="schema:Person">
+                    <span property="schema:name">Maxime Jakubowski</span><sup>2</sup></span>
+                <span class="affil"><sup>1</sup> IDLab, Ghent University – imec &nbsp;&nbsp;<sup>2</sup> TU Wien</span>
+            </div>
+
+            <a id="paper-ref" href="https://2026-semantics-rewriting.jitsedesmet.be/">
+                <img src="/img/qr-paper.svg" alt="QR code to the paper">
+                <span>paper</span>
+            </a>
         </header>
 
-        <div id="requirements">
-            <div class="title">Requirements</div>
-            <ul>
-                <li>Interact with shared Knowledge Graphs and decentralized data ecosystems through SPARQL</li>
-                <li>Serving CRDT-aware and non-aware clients</li>
-                <li>Heterogeneous interfaces supported by minimizing requirements</li>
+        <section id="gap">
+            <div class="title">The gap</div>
+            <ul class="bullets">
+                <li>RDF 1.2 adds <b>triple terms</b>: one native way to state metadata about a statement</li>
+                <li>Published data keeps its own <b>reification pattern</b> &mdash;
+                    <span class="mono">rdf:Statement</span>, <i>n</i>-ary, custom
+                </li>
+                <li>A federation has to speak <b>all of them at once</b></li>
             </ul>
-        </div>
+        </section>
 
-        <object id="system-img" data="/img/rdf-crdt-system.svg" type="image/svg+xml" role="img"
-                aria-label="Two agents communicating with two datastores.
-                The first datastore is exposed through an LDP interface while the second is exposed through a TPF interface.
-                The first agents communicates with both datastores while the second agent communicates only with the second datastore."
-        >
+        <object id="interop-img" data="/img/interop.svg" type="image/svg+xml" role="img"
+                aria-label="A SPARQL 1.2 query enters a Federation Mediator.
+                Mapping M1 rewrites it into an RDF 1.1 query against a single legacy source A that uses an
+                established reification pattern. Mapping M2 is a mapping spanning multiple sources B, C and D,
+                producing a federated RDF 1.2 query.">
         </object>
 
         <div id="take-home">
-            Offline-First Collaborative RDF Editing using Web Standards
+            <span>Write SPARQL <span class="accent">1.2</span>. Query the data you <span class="accent">already have</span>.</span>
         </div>
 
-        <div id="rdf-representation">
-            <pre id="rdf-code"><code>&lt;&gt; a crdt:container .
-[] crdt:tags &lt;&lt;( &lt;&gt; a crdt:container )&gt;&gt; ;
-   <span style="color: var(--deep-green)">crdt:add "be2f95dd-..."^^crdt:uuid .</span>
-<span style="color: hsl(240, 100%, 50%)">:me a :human .</span>
-[] crdt:tags &lt;&lt;( :me a :human )&gt;&gt; ;
-   <span style="color: var(--deep-green)">crdt:add "be2f95dd-..."^^crdt:uuid .</span>
-   <span style="color: var(--deep-red)">crdt:remove "be2f95dd-..."^^crdt:uuid .</span>
-<span style="color: hsl(0, 0%, 50%)">[] crdt:tags &lt;&lt;( :me a :man )&gt;&gt; ;</span>
-   <span style="color: var(--deep-red)">crdt:remove
-"216ac011-...--2025-03-13T14:00:00Z"^^crdt:stamp-uuid .</span></code></pre>
-            <div id="rdf-explain-1">
-                <span class="title"><span class="icon">✔</span> <span>:me a :human</span> — present</span>
-                <span>Has add-tag not in tombstone set</span>
-                <span><span class="icon">↳</span> <span style="font-weight: bold">add-wins</span> over concurrent remove</span>
+        <section id="mechanism">
+            <div class="title">Mappings are just <span class="mono">CONSTRUCT</span> queries</div>
+
+            <div class="card" id="card-map">
+                <div class="chip">1 &nbsp;Map the source onto the global schema</div>
+                <div class="codes">
+<pre><code><span class="c"># rdf-reification &rarr; triple terms</span>
+<span class="k">CONSTRUCT</span> { <span class="v">?t</span> <span class="p">rdf:reifies</span> &lt;&lt;( <span class="v">?s ?p ?o</span> )&gt;&gt; }
+<span class="k">WHERE</span> { <span class="v">?t</span> a <span class="p">rdf:Statement</span> ;
+    <span class="p">rdf:subject</span> <span class="v">?s</span> ; <span class="p">rdf:predicate</span> <span class="v">?p</span> ;
+    <span class="p">rdf:object</span> <span class="v">?o</span> . }</code></pre>
+<pre><code><span class="c"># and pass everything else through</span>
+<span class="k">CONSTRUCT</span> { <span class="v">?s ?p ?o</span> }
+<span class="k">WHERE</span>     { <span class="v">?s ?p ?o</span> }</code></pre>
+                </div>
             </div>
-            <div id="rdf-explain-2">
-                <span class="title"><span class="icon">❌</span> <span>:me a :man</span> — absent</span>
-                <span>No add-tags remain</span>
-                <span>stampUuid enables tombstone expiry</span>
+
+            <div class="card" id="card-query">
+                <div class="chip">2 &nbsp;Ask in SPARQL 1.2</div>
+<pre><code><span class="k">SELECT</span> * <span class="k">WHERE</span> {
+  <span class="v">?t</span> <span class="p">rdf:reifies</span> &lt;&lt;( <span class="v">?s</span> <span class="hl">rdf:type</span> <span class="v">?o</span> )&gt;&gt; ;
+     <span class="p">ex:confidence</span> <span class="v">?score</span> .
+  <span class="k">FILTER</span>(<span class="v">?score</span> &gt; 0.8)
+}</code></pre>
             </div>
-        </div>
 
-        <div id="notation">
-            <div class="title">Notation</div>
-            <ul>
-                <li>RDF 1.2 native reification</li>
-                <li>NTP max pairwise 2000s drift</li>
-                <li>NTP-bound optimize
-                    <ul>
-                        <li>Drop old & redundant tags</li>
-                        <li>Drop old tombstones</li>
-                    </ul>
-                </li>
+            <div id="arrow">
+                <div class="glyph">&rarr;</div>
+                <div class="label">unfold</div>
+            </div>
+
+            <div class="card" id="card-rewritten">
+                <div class="chip alt">3 &nbsp;What the source actually gets</div>
+<pre><code><span class="k">SELECT</span> * <span class="k">WHERE</span> {
+  <span class="v">?t</span> a <span class="p">rdf:Statement</span> ; <span class="p">rdf:subject</span> <span class="v">?s</span> ;
+     <span class="p">rdf:predicate</span> <span class="hl">rdf:type</span> ; <span class="p">rdf:object</span> <span class="v">?o</span> .
+  <span class="v">?t</span> <span class="p">ex:confidence</span> <span class="v">?score</span> .
+  <span class="k">FILTER</span>(<span class="v">?score</span> &gt; 0.8)
+}</code></pre>
+                <div class="note">constants pushed into the mapping body ·
+                    mappings that cannot match become <span class="mono">FILTER(FALSE)</span> and are pruned</div>
+            </div>
+
+            <ul id="benefits">
+                <li><b>Extensible</b><span>new schemes, no new code</span></li>
+                <li><b>Interpretable</b><span>you can read the mapping</span></li>
+                <li><b>Familiar</b><span>it is just SPARQL</span></li>
+                <li><b>Portable</b><span>any compliant engine</span></li>
             </ul>
-        </div>
+        </section>
 
-        <div id="architecture">
-            <div class="title">Architecture</div>
-            <ul>
-                <li>RESTful state based interactions</li>
-                <li>ETAG preventing mid flight collision</li>
-                <li>Atomicity through self confinement</li>
+        <section id="variants">
+            <div class="title">One rewriter, many mappings <span class="sub">— all four ship as demo presets</span></div>
+
+            <div class="vcard">
+                <div class="tag">reification</div>
+                <div class="name">Standard reification</div>
+<pre><code><span class="v">?st</span> a <span class="p">rdf:Statement</span> ;
+  <span class="p">rdf:subject</span> <span class="v">?s</span> ; <span class="p">rdf:object</span> <span class="v">?o</span> ;
+  <span class="p">rdf:predicate</span> <span class="v">?p</span> .</code></pre>
+                <div class="src">UniProt</div>
+            </div>
+
+            <div class="vcard">
+                <div class="tag"><i>n</i>-ary</div>
+                <div class="name">Statement nodes</div>
+<pre><code><span class="v">?s</span>  <span class="p">p:P31</span>  <span class="v">?st</span> .
+<span class="v">?st</span> <span class="p">ps:P31</span> <span class="v">?o</span> .</code></pre>
+                <div class="src">Wikidata</div>
+            </div>
+
+            <div class="vcard alt">
+                <div class="tag">beyond</div>
+                <div class="name">Source selection</div>
+<pre><code><span class="k">CONSTRUCT</span> { <span class="v">?s ?p ?o</span> } <span class="k">WHERE</span> {
+  <span class="k">SERVICE</span> &lt;src&gt; { <span class="v">?s ?p ?o</span> } }</code></pre>
+                <div class="src">federating <i>is</i> rewriting</div>
+            </div>
+
+            <div class="vcard alt">
+                <div class="tag">beyond</div>
+                <div class="name">Set-theoretic globals</div>
+<pre><code>{ …<span class="v">A</span>… } <span class="k">UNION</span> { …<span class="v">B</span>… }
+<span class="k">MINUS</span>   { …<span class="v">C</span>… }</code></pre>
+                <div class="src"><span class="mono">(A ∪ B) ∖ C</span> — beyond per-source rules</div>
+            </div>
+        </section>
+
+        <a id="try" href="https://2026-query-rewriting.demo.jitsedesmet.be/">
+            <img src="/img/qr-demo.svg" alt="QR code to the live demo">
+            <div>
+                <b>Live demo</b>
+                <span>Write mappings, pick sources, watch the rewrite &mdash;
+                    <b>Traqula</b> transforms, <b>Comunica</b> executes</span>
+                <span class="url">2026-query-rewriting.demo.jitsedesmet.be</span>
+            </div>
+        </a>
+
+        <section id="outlook">
+            <div class="title">Next</div>
+            <ul class="bullets">
+                <li>Beyond reification: general RDF-to-RDF mappings, formalised and optimised</li>
+                <li>Mappings we <i>cannot</i> yet write are input for SPARQL maintenance mode:
+                    <span class="mono">CONSTRUCT GRAPH</span>, triple-term templates, recursive views</li>
             </ul>
-        </div>
-
-        <object id="stack-img" role="img" data="/img/rdf-crdt-stack.svg" type="image/svg+xml"
-                aria-label="Architectural stack of the approach.
-             An agent (application/ user) communicates with a SPARQL engine using SPARQL.
-             In turn, the engine, which just supports standard SPARQL queries and updates, communicates with its internal datastore.
-             The store, being a CRDT store, has an OR-set implementation in RDF1.2, and communicates with the Web.
-             This communication is based on GET requests responding with ETags, and performing PUT requests using the If-Match header.">
-
-        </object>
-
-        <div id="conclusion">
-            <div class="title">Conclusion & <br>Future Work</div>
-            <ul style="list-style: '';">
-                <li><img src="/img/logos/npm.svg" style="height: 0.6em"/>
-                    <a style="color: var(--color-sec)" href="https://www.npmjs.com/package/orset-rdf-store">
-                        orset-rdf-store
-                    </a></li>
-                <li><span class="icon" style="font-size: 0.8em; font-weight: 300">✔</span> Abstracted to
-                    <a href="https://www.npmjs.com/package/@rdfjs/types">RDF/JS Types</a>
-                    <a href="https://github.com/rdfjs/types/blob/c635435724076301e2b451fb25d7458ad82dc322/stream.d.ts#L82">Store</a>
-                    interface
-                </li>
-                <li>Try yourself in <img id="comunica" alt="Comunica" src="img/logos/comunica-word.svg"></li>
-                <li><span class="icon">🔬</span> Need for Constraint-Aware Merge</li>
-            </ul>
-        </div>
+        </section>
 
         <footer>
-            <div style="display: flex; flex-direction: column; gap: 0.5em;">
-                <a href="mailto:Jitse.DeSmet@ugent.be">Jitse.DeSmet@ugent.be</a>
-                <a href="mailto:Ruben.Taelman@ugent.be">Ruben.Taelman@ugent.be</a>
+            <div id="contact">
+                <a href="mailto:jitse.desmet@ugent.be">jitse.desmet@ugent.be</a>
+                <a href="mailto:maxime.jakubowski@tuwien.ac.at">maxime.jakubowski@tuwien.ac.at</a>
             </div>
 
-            <a id="paper-ref" href="https://2026-icwe-poster.jitsedesmet.be/">
-                <div style="display: flex; flex-direction: column; gap: 0.1em;
-                            align-items: flex-end;">
-                    <div style="font-weight: bold">Paper</div>
-                    <span style="font-size: 0.8em; text-align: right">
-                        2026-icwe-poster<br>
-                        .jitsedesmet.be
-                    </span>
-                </div>
-                <img id="qr-paper" src="img/qr-paper.svg">
-            </a>
+            <div id="funding">
+                <img alt="GOBLIN COST Action" src="/img/logos/logo-goblin.png">
+                <img alt="COST" src="/img/logos/logo-cost.png">
+                <img alt="Funded by the European Union" src="/img/logos/logo-eu.png">
+            </div>
 
-            <a id="fwo" class="logo" href="https://www.fwo.be/en/">
-                <img alt="logo fwo" src="img/logos/logo-fwo-white.svg">
-            </a>
-            <a id="ughent" class="logo" href="https://www.ugent.be/en">
-                <img alt="logo Ghent University" height="100%" src="img/logos/logo-ugent-white.svg">
-            </a>
-            <a id="imec" class="logo" href="https://www.imec-int.com/en">
-                <img alt="logo imec" src="img/logos/logo-imec-white.svg">
-            </a>
+            <div id="institutes">
+                <a href="https://www.fwo.be/en/"><img alt="FWO" src="/img/logos/logo-fwo.svg"></a>
+                <a href="https://www.ugent.be/en"><img alt="Ghent University" src="/img/logos/logo-ugent.png"></a>
+                <a href="https://www.imec-int.com/en"><img alt="imec" src="/img/logos/logo-imec.png"></a>
+                <a href="https://www.tuwien.at/en/"><img alt="TU Wien" src="/img/logos/logo-tuwien.png"></a>
+            </div>
         </footer>
     </div>
 </div>
